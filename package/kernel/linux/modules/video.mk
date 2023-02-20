@@ -220,6 +220,23 @@ endef
 
 $(eval $(call KernelPackage,fb-tft-ili9486))
 
+define KernelPackage/multimedia-input
+  SUBMENU:=$(VIDEO_MENU)
+  TITLE:=Multimedia input support
+  DEPENDS:=+kmod-input-core
+  KCONFIG:=CONFIG_RC_CORE \
+	CONFIG_LIRC=y \
+	CONFIG_RC_DECODERS=y \
+	CONFIG_RC_DEVICES=y
+  FILES:=$(LINUX_DIR)/drivers/media/rc/rc-core.ko
+  AUTOLOAD:=$(call AutoProbe,rc-core)
+endef
+
+define KernelPackage/multimedia-input/description
+  Enable multimedia input.
+endef
+
+$(eval $(call KernelPackage,multimedia-input))
 
 define KernelPackage/drm
   SUBMENU:=$(VIDEO_MENU)
@@ -239,6 +256,17 @@ define KernelPackage/drm/description
 endef
 
 $(eval $(call KernelPackage,drm))
+
+define KernelPackage/drm-buddy
+  SUBMENU:=$(VIDEO_MENU)
+  TITLE:=A page based buddy allocator
+  DEPENDS:=@TARGET_x86 @DISPLAY_SUPPORT +kmod-drm @LINUX_6_1
+  KCONFIG:=CONFIG_DRM_BUDDY
+  FILES:= $(LINUX_DIR)/drivers/gpu/drm/drm_buddy.ko
+  AUTOLOAD:=$(call AutoProbe,drm_buddy)
+endef
+
+$(eval $(call KernelPackage,drm-buddy))
 
 define KernelPackage/drm-ttm
   SUBMENU:=$(VIDEO_MENU)
@@ -287,6 +315,21 @@ define KernelPackage/drm-kms-helper/description
 endef
 
 $(eval $(call KernelPackage,drm-kms-helper))
+
+define KernelPackage/drm-display-helper
+  SUBMENU:=$(VIDEO_MENU)
+  TITLE:=DRM helpers for display adapters drivers
+  DEPENDS:=@DISPLAY_SUPPORT +kmod-drm +TARGET_x86:kmod-drm-buddy @LINUX_6_1
+  KCONFIG:=CONFIG_DRM_DISPLAY_HELPER
+  FILES:=$(LINUX_DIR)/drivers/gpu/drm/display/drm_display_helper.ko
+  AUTOLOAD:=$(call AutoProbe,drm_display_helper)
+endef
+
+define KernelPackage/drm-display-helper/description
+  DRM helpers for display adapters drivers.
+endef
+
+$(eval $(call KernelPackage,drm-display-helper))
 
 define KernelPackage/drm-amdgpu
   SUBMENU:=$(VIDEO_MENU)
