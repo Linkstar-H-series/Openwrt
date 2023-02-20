@@ -11,6 +11,7 @@ DEVICE_TYPE?=router
 
 # Default packages - the really basic set
 DEFAULT_PACKAGES:=\
+  luci luci-compat \
 	base-files \
 	ca-bundle \
 	dropbear \
