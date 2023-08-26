@@ -8,6 +8,13 @@ include $(INCLUDE_DIR)/prereq.mk
 SHELL:=sh
 PKG_NAME:=Build dependency
 
+$(eval $(call TestHostCommand,true, \
+	Please install GNU 'coreutils', \
+	$(TRUE)))
+
+$(eval $(call TestHostCommand,false, \
+	Please install GNU 'coreutils', \
+	$(FALSE); [ $$$$$$$$? = 1 ] && $(TRUE)))
 
 # Required for the toolchain
 $(eval $(call TestHostCommand,working-make, \
@@ -167,8 +174,6 @@ $(eval $(call SetupHostCommand,install,Please install GNU 'install', \
 
 $(eval $(call SetupHostCommand,perl,Please install Perl 5.x, \
 	perl --version | grep "perl.*v5"))
-
-$(eval $(call CleanupPython2))
 
 $(eval $(call SetupHostCommand,python,Please install Python >= 3.6, \
 	python3.11 -V 2>&1 | grep 'Python 3', \

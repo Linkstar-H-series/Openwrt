@@ -121,6 +121,9 @@
 	status = "okay";
 
 	nand@0 {
+		/delete-property/ nand-ecc-strength;
+		/delete-property/ nand-ecc-step-size;
+
 		partitions {
 			compatible = "fixed-partitions";
 			#address-cells = <1>;
@@ -246,4 +249,24 @@
 			/* Uses the reference BDF */
 		};
 	};
+};
+
+&gmac {
+	status = "okay";
+};
+
+&switch {
+	status = "okay";
+};
+
+&swport4 {
+	status = "okay";
+
+	label = "lan1";
+};
+
+&swport5 {
+	status = "okay";
+
+	label = "lan2";
 };

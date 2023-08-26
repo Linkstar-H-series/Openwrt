@@ -11,6 +11,14 @@ define Build/dongwon-header
 	mv $@.tmp $@
 endef
 
+define Build/meraki-header
+        -$(STAGING_DIR_HOST)/bin/mkmerakifw \
+                -B $(1) -s \
+                -i $@ \
+                -o $@.new
+        @mv $@.new $@
+endef
+
 # attention: only zlib compression is allowed for the boot fs
 define Build/zyxel-buildkerneljffs
 	mkdir -p $@.tmp/boot
@@ -212,6 +220,35 @@ define Device/glinet_gl-xe300
 endef
 TARGET_DEVICES += glinet_gl-xe300
 
+define Device/glinet_gl-x1200-common
+  SOC := qca9563
+  DEVICE_VENDOR := GL.iNet
+  DEVICE_MODEL := GL-X1200
+  DEVICE_PACKAGES := kmod-ath10k-ct ath10k-firmware-qca9888-ct-htt kmod-usb2 \
+	kmod-usb-storage block-mount kmod-usb-net-qmi-wwan uqmi
+  IMAGE_SIZE := 16000k
+endef
+
+define Device/glinet_gl-x1200-nor-nand
+  $(Device/glinet_gl-x1200-common)
+  DEVICE_VARIANT := NOR/NAND
+  KERNEL_SIZE := 4096k
+  IMAGE_SIZE := 131072k
+  PAGESIZE := 2048
+  VID_HDR_OFFSET := 2048
+  BLOCKSIZE := 128k
+  IMAGES += factory.img
+  IMAGE/factory.img := append-kernel | pad-to $$$$(KERNEL_SIZE) | append-ubi
+  IMAGE/sysupgrade.bin := sysupgrade-tar | append-metadata
+endef
+TARGET_DEVICES += glinet_gl-x1200-nor-nand
+
+define Device/glinet_gl-x1200-nor
+  $(Device/glinet_gl-x1200-common)
+  DEVICE_VARIANT := NOR
+endef
+TARGET_DEVICES += glinet_gl-x1200-nor
+
 define Device/linksys_ea4500-v3
   SOC := qca9558
   DEVICE_VENDOR := Linksys
@@ -231,7 +268,24 @@ define Device/linksys_ea4500-v3
 endef
 TARGET_DEVICES += linksys_ea4500-v3
 
-# fake rootfs is mandatory, pad-offset 64 equals (1 * uimage_header)
+define Device/meraki_mr18
+  SOC := qca9557
+  DEVICE_VENDOR := Meraki
+  DEVICE_MODEL := MR18
+  DEVICE_PACKAGES := kmod-leds-uleds kmod-spi-gpio nu801
+  KERNEL_SIZE := 8m
+  BLOCKSIZE := 128k
+  PAGESIZE := 2048
+  LOADER_TYPE := bin
+  KERNEL := kernel-bin | append-dtb | lzma | loader-kernel | meraki-header MR18
+# Initramfs-build fails due to size issues
+# KERNEL_INITRAMFS := $$(KERNEL)
+  KERNEL_INITRAMFS :=
+  IMAGE/sysupgrade.bin := sysupgrade-tar | append-metadata
+endef
+TARGET_DEVICES += meraki_mr18
+
+# fake rootfs is mandatory, pad-offset 129 equals (2 * uimage_header + '\0')
 define Device/netgear_ath79_nand
   DEVICE_VENDOR := NETGEAR
   DEVICE_PACKAGES := kmod-usb2 kmod-usb-ledtrig-usbport
@@ -239,8 +293,9 @@ define Device/netgear_ath79_nand
   BLOCKSIZE := 128k
   PAGESIZE := 2048
   IMAGE_SIZE := 25600k
-  KERNEL := kernel-bin | append-dtb | lzma | uImage lzma | \
-	pad-offset $$(BLOCKSIZE) 64 | append-uImage-fakehdr filesystem $$(UIMAGE_MAGIC)
+  KERNEL := kernel-bin | append-dtb | lzma | \
+	pad-offset $$(BLOCKSIZE) 129 | uImage lzma | pad-extra 1 | \
+	append-uImage-fakehdr filesystem $$(UIMAGE_MAGIC)
   IMAGES := sysupgrade.bin factory.img
   IMAGE/factory.img := append-kernel | pad-to $$$$(KERNEL_SIZE) | \
 	append-ubi | check-size | netgear-dni
@@ -318,6 +373,9 @@ TARGET_DEVICES += netgear_wndr4300tn
 
 define Device/netgear_wndr4300-v2
   SOC := qca9563
+  DEVICE_COMPAT_VERSION := 1.1
+  DEVICE_COMPAT_MESSAGE := Partition table has been changed to fix the \
+	first reboot issue. Please reflash factory image with nmrp or tftp.
   DEVICE_MODEL := WNDR4300
   DEVICE_VARIANT := v2
   UIMAGE_MAGIC := 0x27051956
@@ -329,6 +387,9 @@ TARGET_DEVICES += netgear_wndr4300-v2
 
 define Device/netgear_wndr4500-v3
   SOC := qca9563
+  DEVICE_COMPAT_VERSION := 1.1
+  DEVICE_COMPAT_MESSAGE := Partition table has been changed to fix the \
+	first reboot issue. Please reflash factory image with nmrp or tftp.
   DEVICE_MODEL := WNDR4500
   DEVICE_VARIANT := v3
   UIMAGE_MAGIC := 0x27051956
@@ -361,11 +422,19 @@ define Device/zte_mf281
 endef
 TARGET_DEVICES += zte_mf281
 
+define Device/zte_mf282
+  $(Device/zte_mf28x_common)
+  DEVICE_MODEL := MF282
+  DEVICE_PACKAGES += ath10k-firmware-qca988x-ct kmod-usb-net-qmi-wwan \
+	kmod-usb-serial-option uqmi
+endef
+TARGET_DEVICES += zte_mf282
+
 define Device/zte_mf286
   $(Device/zte_mf28x_common)
   DEVICE_MODEL := MF286
-  DEVICE_PACKAGES += ath10k-firmware-qca988x-ct kmod-usb-net-qmi-wwan \
-	kmod-usb-serial-option uqmi
+  DEVICE_PACKAGES += ath10k-firmware-qca988x-ct ath10k-firmware-qca9888-ct \
+	kmod-usb-net-qmi-wwan kmod-usb-serial-option uqmi
 endef
 TARGET_DEVICES += zte_mf286
 

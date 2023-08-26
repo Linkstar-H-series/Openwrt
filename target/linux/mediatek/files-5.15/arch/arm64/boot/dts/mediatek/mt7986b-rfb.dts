@@ -56,7 +56,7 @@
 	status = "okay";
 };
 
-&wmac {
+&wifi {
 	status = "okay";
 	pinctrl-names = "default", "dbdc";
 	pinctrl-0 = <&wf_2g_5g_pins>;
@@ -139,7 +139,6 @@
 
 				port@6 {
 					reg = <6>;
-					label = "cpu";
 					ethernet = <&gmac0>;
 					phy-mode = "2500base-x";
 

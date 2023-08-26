@@ -11,7 +11,6 @@ DEVICE_TYPE?=router
 
 # Default packages - the really basic set
 DEFAULT_PACKAGES:=\
-  luci luci-compat \
 	base-files \
 	ca-bundle \
 	dropbear \
@@ -260,6 +259,10 @@ ifeq ($(DUMP),1)
     CPU_CFLAGS += -matomic
     CPU_CFLAGS_arc700 = -mcpu=arc700
     CPU_CFLAGS_archs = -mcpu=archs
+  endif
+  ifeq ($(ARCH),riscv64)
+    CPU_TYPE ?= riscv64
+    CPU_CFLAGS_riscv64:=-mabi=lp64d -march=rv64imafdc
   endif
   ifneq ($(CPU_TYPE),)
     ifndef CPU_CFLAGS_$(CPU_TYPE)

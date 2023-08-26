@@ -81,7 +81,7 @@ define Device/engenius_ews2910p
   SOC := rtl8380
   IMAGE_SIZE := 8192k
   DEVICE_VENDOR := EnGenius
-  DEVICE_MODEL := EWP2910P
+  DEVICE_MODEL := EWS2910P
   UIMAGE_MAGIC := 0x03802910
   KERNEL_INITRAMFS := \
 	kernel-bin | \
@@ -98,6 +98,14 @@ define Device/hpe_1920-8g
   H3C_DEVICE_ID := 0x00010023
 endef
 TARGET_DEVICES += hpe_1920-8g
+
+define Device/hpe_1920-8g-poe
+  $(Device/hpe_1920)
+  SOC := rtl8380
+  DEVICE_MODEL := 1920-8G-PoE+ (JG922A)
+  H3C_DEVICE_ID := 0x00010025
+endef
+TARGET_DEVICES += hpe_1920-8g-poe
 
 define Device/hpe_1920-16g
   $(Device/hpe_1920)

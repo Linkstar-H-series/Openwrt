@@ -47,6 +47,7 @@ config KERNEL_MIPS_FP_SUPPORT
 
 config KERNEL_ARM_PMU
 	bool
+	default y if TARGET_armsr_armv8
 	depends on (arm || aarch64)
 
 config KERNEL_X86_VSYSCALL_EMULATION
@@ -387,6 +388,17 @@ config KERNEL_DEBUG_INFO_REDUCED
 	  DEBUG_INFO build and compile times are reduced too.
 	  Only works with newer gcc versions.
 
+config KERNEL_FRAME_WARN
+	int
+	range 0 8192
+	default 1280 if KERNEL_KASAN && !ARCH_64BIT
+	default 1024 if !ARCH_64BIT
+	default 2048 if ARCH_64BIT
+	help
+	  Tell the compiler to warn at build time for stack frames larger than this.
+	  Setting this too low will cause a lot of warnings.
+	  Setting it to 0 disables the warning.
+
 # KERNEL_DEBUG_LL symbols must have the default value set as otherwise
 # KConfig wont evaluate them unless KERNEL_EARLY_PRINTK is selected
 # which means that buildroot wont override the DEBUG_LL symbols in target
@@ -461,6 +473,7 @@ config KERNEL_BPF_EVENTS
 config KERNEL_BPF_KPROBE_OVERRIDE
 	bool
 	depends on KERNEL_KPROBES
+	default n
 
 config KERNEL_AIO
 	bool "Compile the kernel with asynchronous IO support"
@@ -468,7 +481,8 @@ config KERNEL_AIO
 
 config KERNEL_IO_URING
 	bool "Compile the kernel with io_uring support"
-	default y if !SMALL_FLASH
+	depends on !SMALL_FLASH
+	default y if (x86_64 || aarch64)
 
 config KERNEL_FHANDLE
 	bool "Compile the kernel with support for fhandle syscalls"
@@ -539,6 +553,18 @@ config KERNEL_SOFTLOCKUP_DETECTOR
 	  mode for more than 20 seconds, without giving other tasks a
 	  chance to run.  The current stack trace is displayed upon
 	  detection and the system will stay locked up.
+
+config KERNEL_HARDLOCKUP_DETECTOR
+	bool "Compile the kernel with detect Hard Lockups"
+	depends on KERNEL_DEBUG_KERNEL
+	help
+	  Say Y here to enable the kernel to act as a watchdog to detect
+	  hard lockups.
+
+	  Hardlockups are bugs that cause the CPU to loop in kernel mode
+	  for more than 10 seconds, without letting other interrupts have a
+	  chance to run.  The current stack trace is displayed upon detection
+	  and the system will stay locked up.
 
 config KERNEL_DETECT_HUNG_TASK
 	bool "Compile the kernel with detect Hung Tasks"
@@ -1072,6 +1098,12 @@ config KERNEL_NET_L3_MASTER_DEV
 	  This module provides glue between core networking code and device
 	  drivers to support L3 master devices like VRF.
 
+config KERNEL_XDP_SOCKETS
+	bool "XDP sockets support"
+	help
+	  XDP sockets allows a channel between XDP programs and
+	  userspace applications.
+
 config KERNEL_WIRELESS_EXT
 	def_bool n
 
@@ -1093,7 +1125,6 @@ config KERNEL_PAGE_POOL
 config KERNEL_PAGE_POOL_STATS
 	bool "Page pool stats support"
 	depends on KERNEL_PAGE_POOL
-	depends on !LINUX_5_10
 
 #
 # NFS related symbols

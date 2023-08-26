@@ -59,7 +59,9 @@ platform_do_upgrade() {
 	asus,rt-ax54|\
 	beeline,smartbox-flash|\
 	beeline,smartbox-giga|\
+	beeline,smartbox-pro|\
 	beeline,smartbox-turbo|\
+	beeline,smartbox-turbo-plus|\
 	belkin,rt1800|\
 	dlink,dap-x1860-a1|\
 	dlink,dir-1960-a1|\
@@ -105,6 +107,7 @@ platform_do_upgrade() {
 	sercomm,na502s|\
 	sim,simax1800t|\
 	tplink,ec330-g5u-v1|\
+	wifire,s1500-nbn|\
 	xiaomi,mi-router-3g|\
 	xiaomi,mi-router-3-pro|\
 	xiaomi,mi-router-4|\
@@ -153,6 +156,10 @@ platform_do_upgrade() {
 		dd bs=4 count=1 seek=26 conv=notrunc if=/dev/zero of=$kernel2_mtd 2>/dev/null &&\
 		echo "Kernel2 sequence number was reset to 0"
 		CI_KERNPART="Kernel"
+		nand_do_upgrade "$1"
+		;;
+	zyxel,wsm20)
+		zyxel_mstc_upgrade_prepare
 		nand_do_upgrade "$1"
 		;;
 	*)

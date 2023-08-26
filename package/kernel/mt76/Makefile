@@ -1,16 +1,16 @@
 include $(TOPDIR)/rules.mk
 
 PKG_NAME:=mt76
-PKG_RELEASE=5
+PKG_RELEASE=1
 
 PKG_LICENSE:=GPLv2
 PKG_LICENSE_FILES:=
 
 PKG_SOURCE_URL:=https://github.com/openwrt/mt76
 PKG_SOURCE_PROTO:=git
-PKG_SOURCE_DATE:=2023-02-02
-PKG_SOURCE_VERSION:=b2360d59747c6fed2b65bc1c3563c10593c83f3e
-PKG_MIRROR_HASH:=f85f00fa8f549de348a115f92c4f0235e413ed924669aece390c7570882526dd
+PKG_SOURCE_DATE:=2023-08-14
+PKG_SOURCE_VERSION:=b14c2351ddb8601c322576d84029e463d456caef
+PKG_MIRROR_HASH:=62b5e157ad525424b6857e77ed373e8d39d03af71b057f8b309d8b293d6eac5f
 
 PKG_MAINTAINER:=Felix Fietkau <nbd@nbd.name>
 PKG_USE_NINJA:=0
@@ -245,6 +245,12 @@ define KernelPackage/mt7916-firmware
   TITLE:=MediaTek MT7916 firmware
 endef
 
+define KernelPackage/mt7981-firmware
+  $(KernelPackage/mt76-default)
+  DEPENDS:=@TARGET_mediatek_filogic
+  TITLE:=MediaTek MT7981 firmware
+endef
+
 define KernelPackage/mt7986-firmware
   $(KernelPackage/mt76-default)
   DEPENDS:=@TARGET_mediatek_filogic
@@ -256,18 +262,34 @@ define KernelPackage/mt7921-firmware
   TITLE:=MediaTek MT7921 firmware
 endef
 
+define KernelPackage/mt792x-common
+  $(KernelPackage/mt76-default)
+  TITLE:=MediaTek MT792x wireless driver common code
+  HIDDEN:=1
+  DEPENDS+=+kmod-mt76-connac +@DRIVER_11AX_SUPPORT
+  FILES:= $(PKG_BUILD_DIR)/mt792x-lib.ko
+endef
+
+define KernelPackage/mt792x-usb
+  $(KernelPackage/mt76-default)
+  TITLE:=MediaTek MT792x wireless driver USB code
+  HIDDEN:=1
+  DEPENDS+=+kmod-mt792x-common +kmod-mt76-usb +@DRIVER_11AX_SUPPORT
+  FILES:= $(PKG_BUILD_DIR)/mt792x-usb.ko
+endef
+
 define KernelPackage/mt7921-common
   $(KernelPackage/mt76-default)
-  TITLE:=MediaTek MT7615 wireless driver common code
+  TITLE:=MediaTek MT7921 wireless driver common code
   HIDDEN:=1
-  DEPENDS+=+kmod-mt76-connac +kmod-mt7921-firmware +@DRIVER_11AX_SUPPORT
+  DEPENDS+=+kmod-mt792x-common +kmod-mt7921-firmware +@DRIVER_11AX_SUPPORT +kmod-hwmon-core
   FILES:= $(PKG_BUILD_DIR)/mt7921/mt7921-common.ko
 endef
 
 define KernelPackage/mt7921u
   $(KernelPackage/mt76-default)
   TITLE:=MediaTek MT7921U wireless driver
-  DEPENDS+=+kmod-mt76-usb +kmod-mt7921-common
+  DEPENDS+=+kmod-mt792x-usb +kmod-mt7921-common
   FILES:= $(PKG_BUILD_DIR)/mt7921/mt7921u.ko
   AUTOLOAD:=$(call AutoProbe,mt7921u)
 endef
@@ -374,9 +396,15 @@ endif
 ifdef CONFIG_PACKAGE_kmod-mt7915e
   PKG_MAKE_FLAGS += CONFIG_MT7915E=m
   ifdef CONFIG_TARGET_mediatek_filogic
-    PKG_MAKE_FLAGS += CONFIG_MT7986_WMAC=y
-    NOSTDINC_FLAGS += -DCONFIG_MT7986_WMAC
+    PKG_MAKE_FLAGS += CONFIG_MT798X_WMAC=y
+    NOSTDINC_FLAGS += -DCONFIG_MT798X_WMAC
   endif
+endif
+ifdef CONFIG_PACKAGE_kmod-mt792x-common
+  PKG_MAKE_FLAGS += CONFIG_MT792x_LIB=m
+endif
+ifdef CONFIG_PACKAGE_kmod-mt792x-usb
+  PKG_MAKE_FLAGS += CONFIG_MT792x_USB=m
 endif
 ifdef CONFIG_PACKAGE_kmod-mt7921-common
   PKG_MAKE_FLAGS += CONFIG_MT7921_COMMON=m
@@ -497,6 +525,15 @@ define KernelPackage/mt7916-firmware/install
 		$(1)/lib/firmware/mediatek
 endef
 
+define KernelPackage/mt7981-firmware/install
+	$(INSTALL_DIR) $(1)/lib/firmware/mediatek
+	cp \
+		$(PKG_BUILD_DIR)/firmware/mt7981_wa.bin \
+		$(PKG_BUILD_DIR)/firmware/mt7981_wm.bin \
+		$(PKG_BUILD_DIR)/firmware/mt7981_rom_patch.bin \
+		$(1)/lib/firmware/mediatek
+endef
+
 define KernelPackage/mt7986-firmware/install
 	$(INSTALL_DIR) $(1)/lib/firmware/mediatek
 	cp \
@@ -548,8 +585,11 @@ $(eval $(call KernelPackage,mt7663s))
 $(eval $(call KernelPackage,mt7915-firmware))
 $(eval $(call KernelPackage,mt7915e))
 $(eval $(call KernelPackage,mt7916-firmware))
+$(eval $(call KernelPackage,mt7981-firmware))
 $(eval $(call KernelPackage,mt7986-firmware))
 $(eval $(call KernelPackage,mt7921-firmware))
+$(eval $(call KernelPackage,mt792x-common))
+$(eval $(call KernelPackage,mt792x-usb))
 $(eval $(call KernelPackage,mt7921-common))
 $(eval $(call KernelPackage,mt7921u))
 $(eval $(call KernelPackage,mt7921s))

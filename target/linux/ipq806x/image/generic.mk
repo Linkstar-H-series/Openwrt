@@ -141,8 +141,7 @@ define Device/edgecore_ecw5410
 	BLOCKSIZE := 128k
 	PAGESIZE := 2048
 	DEVICE_DTS_CONFIG := config@v2.0-ap160
-	DEVICE_PACKAGES := ath10k-firmware-qca9984-ct \
-		ipq-wifi-edgecore_ecw5410
+	DEVICE_PACKAGES := ath10k-firmware-qca9984-ct
 endef
 TARGET_DEVICES += edgecore_ecw5410
 
@@ -246,7 +245,7 @@ define Device/nec_wg2600hp3
 		pad-rootfs | append-metadata
 	DEVICE_PACKAGES := -kmod-ata-ahci -kmod-ata-ahci-platform \
 		-kmod-usb-ohci -kmod-usb2 -kmod-usb-ledtrig-usbport \
-		-kmod-usb-phy-qcom-dwc3 -kmod-usb3 -kmod-usb-dwc3-qcom \
+		-kmod-phy-qcom-ipq806x-usb -kmod-usb3 -kmod-usb-dwc3-qcom \
 		ath10k-firmware-qca9984-ct
 endef
 TARGET_DEVICES += nec_wg2600hp3
@@ -334,6 +333,20 @@ define Device/netgear_xr500
 	DEVICE_PACKAGES := ath10k-firmware-qca9984-ct kmod-ramoops
 endef
 TARGET_DEVICES += netgear_xr500
+
+define Device/nokia_ac400i
+	$(call Device/FitImage)
+	$(call Device/UbiFit)
+	DEVICE_VENDOR := Nokia
+	DEVICE_MODEL := AC400i
+	SOC := qcom-ipq8065
+	DEVICE_DTS := qcom-ipq8065-ac400i
+	BLOCKSIZE := 128k
+	PAGESIZE := 2048
+	BOARD_NAME := ac400i
+	DEVICE_PACKAGES := ath10k-firmware-qca9984-ct
+endef
+TARGET_DEVICES += nokia_ac400i
 
 define Device/qcom_ipq8064-ap148
 	$(call Device/FitImage)
