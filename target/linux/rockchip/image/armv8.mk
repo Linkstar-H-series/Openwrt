@@ -16,6 +16,12 @@ $(call Device/linkstar_common)
 endef
 TARGET_DEVICES += linkstar_opc-h68k
 
+define Device/linkstar_opc-h66k
+$(call Device/linkstar_common)
+  DEVICE_MODEL := H66K
+endef
+TARGET_DEVICES += linkstar_opc-h66k
+
 define Device/friendlyarm_nanopi-r2s
   DEVICE_VENDOR := FriendlyARM
   DEVICE_MODEL := NanoPi R2S

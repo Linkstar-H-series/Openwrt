@@ -58,6 +58,7 @@ define Build/InstallDev
 		$(STAGING_DIR_IMAGE)/$(DDR):$(PKG_BUILD_DIR)/spl/u-boot-spl.bin $(PKG_BUILD_DIR)/idbloader.img
 	$(CP) $(PKG_BUILD_DIR)/idbloader.img $(STAGING_DIR_IMAGE)/$(BUILD_VARIANT)-idbloader.img
 	$(CP) $(PKG_BUILD_DIR)/u-boot.itb $(STAGING_DIR_IMAGE)/$(BUILD_VARIANT)-u-boot.itb
+	$(CP) $(PKG_BUILD_DIR)/tools/mkimage $(STAGING_DIR_IMAGE)/mkimage
 endef
 
 define Package/u-boot/install/default
