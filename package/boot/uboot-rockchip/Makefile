@@ -28,9 +28,9 @@ endef
 
 define U-Boot/opc-h68k-rk3568
   BUILD_SUBTARGET:=armv8
-  NAME:=HINLINK OPC-H68K
+  NAME:=Linkstar OPC-H68K
   BUILD_DEVICES:= \
-    hinlink_opc-h68k-d
+    linkstar_opc-h68k
   DEPENDS:=+PACKAGE_u-boot-opc-h68k-rk3568:arm-trusted-firmware-rk3568
   PKG_BUILD_DEPENDS:=arm-trusted-firmware-rockchip
   ATF:=rk3568_bl31_v1.34.elf
