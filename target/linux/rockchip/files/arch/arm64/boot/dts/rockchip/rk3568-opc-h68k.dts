@@ -1,13 +1,15 @@
-// SPDX-License-Identifier: (GPL-2.0+ OR MIT)
-// Copyright (c) 2022 AmadeusGhost <amadeus@jmu.edu.cn>
+// SPDX-License-Identifier: GPL-2.0-or-later OR MIT
+/*
+ * Copyright (c) 2022 AmadeusGhost <amadeus@jmu.edu.cn>
+ */
 
 /dts-v1/;
 
-#include "rk3568-linkstar-opc.dtsi"
+#include "rk3568-opc-h66k.dtsi"
 
 / {
-	model = "LinkStar H68K";
-	compatible = "linkstar,opc-h68k", "rockchip,rk3568";
+	model = "Linkstar H68K";
+	compatible = "hinlink,opc-h68k", "rockchip,rk3568";
 
 	aliases {
 		ethernet0 = &gmac0;
@@ -55,6 +57,22 @@
 	rx_delay = <0x26>;
 	phy-handle = <&rgmii_phy1>;
 	status = "okay";
+};
+
+&mdio0 {
+	rgmii_phy0: ethernet-phy@0 {
+		compatible = "ethernet-phy-ieee802.3-c22";
+		reg = <0>;
+		realtek,led-data = <0x6d60>;
+	};
+};
+
+&mdio1 {
+	rgmii_phy1: ethernet-phy@0 {
+		compatible = "ethernet-phy-ieee802.3-c22";
+		reg = <0>;
+		realtek,led-data = <0x6d60>;
+	};
 };
 
 &vcc3v3_pcie {
