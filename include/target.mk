@@ -18,6 +18,7 @@ DEFAULT_PACKAGES:=\
 	libc \
 	libgcc \
 	libustream-mbedtls \
+	luci \
 	logd \
 	mtd \
 	netifd \
